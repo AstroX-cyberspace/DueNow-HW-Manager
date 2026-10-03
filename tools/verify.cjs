@@ -16,8 +16,8 @@ function setup({demo=false,failKey=null}={}){
 }
 test('static data is byte-for-byte unchanged except for the release version',()=>{
   const current=fs.readFileSync(root+'duenow-app-en/js/data.js','utf8');
-  assert.ok(current.includes("const APP_VERSION = '2.1.1';"));
-  assert.equal(current.replace("const APP_VERSION = '2.1.1';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
+  assert.ok(current.includes("const APP_VERSION = '2.1.2';"));
+  assert.equal(current.replace("const APP_VERSION = '2.1.2';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
 });
 test('reading existing storage does not change a byte',()=>{
   const s=setup(),before=JSON.stringify([...s.map]);s.run('loadHomework(); loadSettings(); getWeekStats(); loadExtraClasses(); loadClubActivities();');assert.equal(JSON.stringify([...s.map]),before);

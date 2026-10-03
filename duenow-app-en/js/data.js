@@ -4,7 +4,7 @@
  */
 
 // App version
-const APP_VERSION = '2.1.1';
+const APP_VERSION = '2.1.2';
 
 // Subject definitions
 const SUBJECTS = {

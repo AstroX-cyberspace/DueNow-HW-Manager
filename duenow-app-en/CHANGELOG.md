@@ -1,3 +1,9 @@
+# Release 2.1.2 — October 3, 2026
+
+- Moved the orbital decoration into the permanent Today layout so pending homework no longer hides it.
+- Kept the all-clear message conditional on there being no unfinished homework due.
+- No homework data or completion states changed.
+
 # Release 2.1.1 — October 3, 2026
 
 - Larger schedule text (16–18px class names, 12–14px teacher details), plus more readable homework metadata.

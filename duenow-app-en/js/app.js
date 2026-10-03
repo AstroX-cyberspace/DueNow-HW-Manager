@@ -136,15 +136,7 @@
     const allToday = [...overdue.filter(h => h.dueDate < todayStr), ...pending].sort((a,b) => (a.dueDate + a.dueTime).localeCompare(b.dueDate + b.dueTime));
     if (allToday.length === 0) {
       dueEl.innerHTML = `<div class="clear-day">
-        <svg class="clear-day-art" viewBox="0 0 240 160" aria-hidden="true" focusable="false">
-          <ellipse cx="120" cy="80" rx="100" ry="34" transform="rotate(-24 120 80)" fill="none" stroke="currentColor" opacity=".35"/>
-          <circle cx="120" cy="80" r="54" fill="none" stroke="currentColor" opacity=".2"/>
-          <circle cx="120" cy="80" r="28" fill="none" stroke="currentColor"/>
-          <path d="m108 80 8 8 17-18" fill="none" stroke="var(--text)" stroke-width="2"/>
-          <circle cx="204" cy="41" r="5" fill="var(--text)"/>
-          <circle cx="51" cy="112" r="3" fill="currentColor"/>
-          <path d="M45 33v10m-5-5h10M185 121v8m-4-4h8" stroke="currentColor" opacity=".6"/>
-        </svg>
+        
         <div><span class="clear-day-label">A LITTLE ROOM TO BREATHE</span><h3>All clear for today.</h3><p>No unfinished homework due today.<br>Your upcoming deadlines are below.</p></div>
       </div>`;
     } else {
