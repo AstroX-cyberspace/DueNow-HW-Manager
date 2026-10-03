@@ -1,0 +1,61 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const root=__dirname+'/../';
+const keys=['duenow_homework_v1','duenow_settings_v1','duenow_extra_classes_v1','duenow_clubs_v1'];
+const fixture={homework:[{id:'existing-1',title:'原有作业 — Do not rename',subject:'physics',type:'Lab Report',dueDate:'2026-09-29',dueTime:'08:50',priority:'High',estimatedMinutes:40,source:'In-Class',notes:'Keep exactly',completed:false,completedAt:null,createdAt:'2026-09-28T03:00:00.000Z',customField:'preserved'}],settings:{remind24h:false,remind3h:true,dailyReview:false,overdueNudge:true,dailyReviewTime:'21:00'},extraClasses:[{id:'extra-1',date:'2026-10-10',weekday:3,note:'Thursday schedule'}],clubs:[{id:'club-1',date:'2026-09-30',slot:'noon',club:'circuit',note:'Keep this name and slot'}]};
+function setup({demo=false,failKey=null}={}){
+  const map=new Map(keys.map((key,i)=>[key,JSON.stringify(Object.values(fixture)[i])]));
+  const session=new Map();
+  let fail=false;
+  const store={getItem:k=>map.get(k)??null,setItem:(k,v)=>{if(fail&&k===failKey){fail=false;throw new Error('Quota exceeded');}map.set(k,String(v));},removeItem:k=>map.delete(k)};
+  const context=vm.createContext({console:{error(){}},URLSearchParams,Date,location:{search:demo?'?demo=1':''},localStorage:store,sessionStorage:{getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,String(v)),removeItem:k=>session.delete(k)}});
+  for(const file of ['data.js','session.js','storage.js'])vm.runInContext(fs.readFileSync(root+'duenow-app-en/js/'+file,'utf8'),context);
+  return {map,session,run:code=>vm.runInContext(code,context),fail:()=>fail=true};
+}
+test('static data is byte-for-byte unchanged except for the release version',()=>{
+  const current=fs.readFileSync(root+'duenow-app-en/js/data.js','utf8');
+  assert.ok(current.includes("const APP_VERSION = '2.0.0';"));
+  assert.equal(current.replace("const APP_VERSION = '2.0.0';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
+});
+test('reading existing storage does not change a byte',()=>{
+  const s=setup(),before=JSON.stringify([...s.map]);s.run('loadHomework(); loadSettings(); getWeekStats(); loadExtraClasses(); loadClubActivities();');assert.equal(JSON.stringify([...s.map]),before);
+});
+test('complete backup roundtrip preserves every homework field and all four collections',()=>{
+  const s=setup(),backup=s.run('exportData()');assert.equal(s.run(`importData(${JSON.stringify(backup)})`),true);
+  const data=JSON.parse(s.run('exportData()'));for(const k of Object.keys(fixture))assert.deepEqual(data[k],fixture[k]);
+});
+test('legacy backups without clubs or arrangements preserve those existing collections',()=>{
+  const s=setup();assert.equal(s.run(`importData(${JSON.stringify(JSON.stringify({homework:fixture.homework,settings:fixture.settings}))})`),true);
+  assert.equal(s.map.get(keys[2]),JSON.stringify(fixture.extraClasses));assert.equal(s.map.get(keys[3]),JSON.stringify(fixture.clubs));
+});
+test('malformed imports, invalid dates, duplicate IDs and unknown clubs leave data untouched',()=>{
+  for(const bad of ['{}','broken',JSON.stringify({homework:[{...fixture.homework[0],dueDate:'2026-02-31'}]}),JSON.stringify({homework:[fixture.homework[0],fixture.homework[0]]}),JSON.stringify({...fixture,clubs:[{...fixture.clubs[0],club:'unknown'}]})]){
+    const s=setup(),before=JSON.stringify([...s.map]);assert.equal(s.run(`importData(${JSON.stringify(bad)})`),false);assert.equal(JSON.stringify([...s.map]),before);
+  }
+});
+test('partial failed import rolls all collections back',()=>{
+  const s=setup({failKey:keys[2]}),before=keys.map(k=>s.map.get(k));s.fail();
+  assert.equal(s.run(`importData(${JSON.stringify(JSON.stringify({...fixture,homework:[]}))})`),false);
+  assert.deepEqual(keys.map(k=>s.map.get(k)),before);
+});
+test('clearing retains a raw recovery copy of all collections',()=>{
+  const s=setup(),before=keys.map(k=>s.map.get(k));s.run('clearAllData()');assert.ok(keys.every(k=>!s.map.has(k)));assert.deepEqual(JSON.parse(s.map.get('duenow_recovery_v1')).values,before);
+});
+test('demo edits cannot write production homework, settings, clubs or arrangements',()=>{
+  const s=setup({demo:true}),before=JSON.stringify([...s.map]);s.run(`addHomework({title:'Demo only',subject:'math',dueDate:'2026-09-30'}); saveSettings({remind24h:false}); addClubActivity('2026-09-30','noon','cs','demo'); addExtraClass('2026-10-10',1,'demo');`);
+  assert.equal(JSON.stringify([...s.map]),before);assert.equal(s.session.size,4);
+});
+test('overdue detection includes elapsed deadlines today and excludes future deadlines',()=>{
+  const s=setup();s.run(`const today=formatDate(new Date()); const tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1); saveHomework([{id:'late',dueDate:today,dueTime:'00:00',completed:false},{id:'future',dueDate:formatDate(tomorrow),dueTime:'23:59',completed:false},{id:'done',dueDate:'2020-01-01',dueTime:'00:00',completed:true}]);`);
+  assert.equal(s.run('JSON.stringify(getOverdueHomework().map(h=>h.id))'),'["late"]');
+});
+test('homework CRUD changes only the selected item and reports failed writes',()=>{
+  const s=setup({failKey:keys[0]});const original=s.map.get(keys[0]);s.fail();assert.equal(s.run(`addHomework({title:'Cannot save',subject:'math'})`),null);assert.equal(s.map.get(keys[0]),original);
+  const id=s.run(`addHomework({title:'Temporary task',subject:'english',dueDate:'2026-09-30',dueTime:'13:20'}).id`);
+  s.run(`updateHomework(${JSON.stringify(id)},{notes:'Updated note'});toggleComplete(${JSON.stringify(id)});deleteHomework(${JSON.stringify(id)});`);assert.equal(s.map.get(keys[0]),original);
+});
+test('weekend calendar names and undated items render correctly',()=>{
+  const s=setup();assert.equal(s.run(`getDayOfWeek('2026-10-03')`),'Sat');assert.equal(s.run(`getDayOfWeek('2026-10-04')`),'Sun');assert.equal(s.run(`getDueLabel({completed:false}).text`),'No deadline');
+});

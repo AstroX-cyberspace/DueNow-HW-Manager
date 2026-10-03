@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DueNow Homework Manager</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <!-- Floating rounded sidebar -->
+  <aside class="side">
+    <div class="logo"><span class="dot"></span>DueNow</div>
+    <nav class="nav">
+      <div class="nav-item active" data-page="today"><span class="ic">◉</span>Today</div>
+      <div class="nav-item" data-page="list"><span class="ic">☰</span>Homework</div>
+      <div class="nav-item" data-page="timetable"><span class="ic">▤</span>Schedule</div>
+      <div class="nav-item" data-page="calendar"><span class="ic">▦</span>Calendar</div>
+      <div class="nav-item" data-page="clubs"><span class="ic">✦</span>Clubs</div>
+      <div class="nav-item" data-page="stats"><span class="ic">◔</span>Stats</div>
+      <div class="nav-item" data-page="settings"><span class="ic">⚙</span>Settings</div>
+    </nav>
+    <div class="side-profile">
+      <span class="avatar">B</span>
+      <div><div class="pn">BHSFIC</div><div class="pd">Grade 10 · Fall 2026</div></div>
+    </div>
+    <div class="side-foot" id="side-foot">Weekly completion: --</div>
+  </aside>
+
+  <!-- Main area -->
+  <div class="main">
+    <div class="content">
+
+      <!-- ============ Today ============ -->
+      <section class="page active" id="page-today">
+        <div class="page-title">Today</div>
+        <div class="page-sub" id="today-date"></div>
+        <div class="hello">
+          <span class="big" id="today-greeting">Hello</span>
+          <span class="chip" id="today-chip">Loading…</span>
+        </div>
+
+        <div class="sec-label"><span><span class="dotl" style="background:var(--blue);"></span>Today's Classes</span><span class="more" data-page="timetable">Full Schedule →</span></div>
+        <div class="courses" id="today-courses"></div>
+
+        <div class="sec-label" id="clubs-section-label" style="display:none;"><span><span class="dotl" style="background:#A78BFA;"></span>Extracurricular · Clubs</span><span class="more" id="clubs-add-link">＋ Add →</span></div>
+        <div class="courses" id="today-clubs" style="display:none;"></div>
+
+        <div class="sec-label"><span><span class="dotl" style="background:var(--red);"></span>Due Today</span><span class="more" data-page="list">All Homework →</span></div>
+        <div class="flex-row">
+          <div class="card" style="flex:1 1 400px;" id="today-due"></div>
+          <div class="card" style="flex:1 1 220px;" id="today-progress"></div>
+        </div>
+
+        <div class="sec-label"><span><span class="dotl" style="background:var(--amber);"></span>Upcoming · Next 3 Days</span></div>
+        <div class="card" id="today-upcoming"></div>
+      </section>
+
+      <!-- ============ Homework ============ -->
+      <section class="page" id="page-list">
+        <div class="page-title">Homework</div>
+        <div class="page-sub">Grouped by subject · Click an item to edit</div>
+        <div class="tabs">
+          <div class="tab active" data-filter="all">All</div>
+          <div class="tab" data-filter="today">Due Today</div>
+          <div class="tab" data-filter="week">This Week</div>
+          <div class="tab" data-filter="overdue">Overdue</div>
+          <div class="tab" data-filter="done">Completed</div>
+        </div>
+        <div class="modules" id="list-modules"></div>
+      </section>
+
+      <!-- ============ Schedule ============ -->
+      <section class="page" id="page-timetable">
+        <div class="page-title">Schedule</div>
+        <div class="page-sub">Weekly schedule · Click a class to quickly add homework</div>
+        <div class="tt-wrap">
+          <table class="tt-grid">
+            <tr><th style="width:80px;">Time</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr>
+            <tbody id="tt-body"></tbody>
+          </table>
+        </div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:12px;line-height:1.7;">Thursday 12:30 / 13:20 = Politics. Thursday 15:00-15:40 = Free. Click any class cell → quickly add homework for that subject (auto-filled).</div>
+        <div class="legend" id="tt-legend"></div>
+      </section>
+
+      <!-- ============ Calendar ============ -->
+      <section class="page" id="page-calendar">
+        <div class="page-title">Calendar</div>
+        <div class="page-sub">Click a date to view that day's homework</div>
+        <div class="flex-row">
+          <div class="card">
+            <div class="cal-grid" id="cal-grid"></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:12px;">● Dot = homework due that day · Blue outline = today · Teal outline = selected</div>
+          </div>
+          <div class="card">
+            <div class="sec-label" style="margin-top:0;"><span id="cal-day-title">--</span></div>
+            <div id="cal-day-items"></div>
+            <div style="margin-top:16px;padding:13px;background:var(--teal-soft);border:1px solid rgba(45,212,191,.3);border-radius:10px;font-size:12.5px;color:var(--teal);">Click "＋ Add Homework" to schedule homework on the selected date</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Stats ============ -->
+      <section class="page" id="page-stats">
+        <div class="page-title">Stats</div>
+        <div class="page-sub">Weekly overview</div>
+        <div class="stat-hero">
+          <div class="ring" id="stat-ring"><div class="inner"><b>0%</b><span>Rate</span></div></div>
+          <div>
+            <div class="big-num" id="stat-big-num">0%</div>
+            <div class="big-label" id="stat-big-label">Weekly completion rate</div>
+          </div>
+          <div class="stat-mini">
+            <div class="mc"><div class="k">On-time rate</div><div class="v" id="stat-ontime">0<small>%</small></div></div>
+            <div class="mc"><div class="k">Done / Total</div><div class="v" id="stat-done">0<small> / 0</small></div></div>
+            <div class="mc"><div class="k">All homework</div><div class="v" id="stat-total">0</div></div>
+          </div>
+        </div>
+        <div class="stat-charts">
+          <div class="card">
+            <div class="sec-label" style="margin-top:0;">Homework by Subject (count)</div>
+            <div class="h-bars" id="stat-subj-bars"></div>
+          </div>
+          <div class="card">
+            <div class="sec-label" style="margin-top:0;">Completed per Day (this week)</div>
+            <div class="bars" id="stat-day-bars"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Clubs ============ -->
+      <section class="page" id="page-clubs">
+        <div class="page-title">
+          <span>Clubs &amp; Activities</span>
+          <span class="add-pill" id="clubs-add-btn">＋ Add Activity</span>
+        </div>
+        <div class="page-sub">五个社团 · 点卡片快速添加 · 详细活动见下方时间线</div>
+
+        <div class="clubs" id="clubs-cards"></div>
+
+        <div class="sec-label"><span class="dotl" style="background:#A78BFA;"></span>Upcoming · Next 30 days</div>
+        <div id="clubs-timeline"></div>
+      </section>
+
+      <!-- ============ Settings ============ -->
+      <section class="page" id="page-settings">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Course management · Reminders · Data backup</div>
+        <div class="flex-row">
+          <div class="card">
+            <div class="sec-label" style="margin-top:0;">Courses (from your schedule)</div>
+            <div id="set-subjects"></div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="sec-label" style="margin-top:0;">Reminders</div>
+              <div class="set-row"><div><div class="k">Remind 24h before due</div><div class="s">Get a heads-up one day early</div></div><div class="switch" id="set-remind24h"></div></div>
+              <div class="set-row"><div><div class="k">Remind 3h before due</div><div class="s">Last-minute reminder for today's items</div></div><div class="switch" id="set-remind3h"></div></div>
+              <div class="set-row"><div><div class="k">Daily review at 21:00</div><div class="s">Summarize unfinished and tomorrow's due</div></div><div class="switch" id="set-dailyReview"></div></div>
+              <div class="set-row"><div><div class="k">Overdue nudge</div><div class="s">Remind again on the day after overdue</div></div><div class="switch" id="set-overdueNudge"></div></div>
+            </div>
+            <div class="card">
+              <div class="sec-label" style="margin-top:0;">Special Arrangements</div>
+              <div style="font-size:12.5px;color:var(--text2);margin-bottom:10px;">If a weekend day becomes a school day, add it here — pick which weekday's schedule to follow. It will show up on the Today page.</div>
+              <div id="set-extra-list"></div>
+              <button class="btn ghost" id="btn-add-extra" style="margin-top:10px;">＋ Add Special Arrangement</button>
+            </div>
+            <div class="card">
+              <div class="sec-label" style="margin-top:0;">Data &amp; Backup</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn" id="btn-export">Export JSON Backup</button>
+                <button class="btn ghost" id="btn-import">Import Backup</button>
+                <button class="btn danger" id="btn-clear">Clear All Data</button>
+              </div>
+              <div style="font-size:11.5px;color:var(--text3);margin-top:12px;">Recommended: export a backup every Sunday. Data is stored locally in your browser (localStorage); clearing browser data will erase it.</div>
+              <div class="version-box">
+                <span>DueNow Homework Manager · Version <b id="app-version">v0.0.0</b></span>
+                <span style="color:var(--text3);">Frontend · Local storage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== Floating pill dock ===== -->
+<div class="dock">
+  <div class="pill pill-glass">
+    <div class="pi" id="btn-search">🔍</div>
+    <div class="pi" id="btn-notif">🔔<span class="badge">0</span></div>
+  </div>
+  <button class="pill pill-add" id="btn-add">＋ Add Homework</button>
+</div>
+
+<!-- Search popover -->
+<div class="pop" id="pop-search">
+  <div class="pt">Search Homework</div>
+  <input class="in" id="search-input" placeholder="Title / subject / teacher…">
+  <div class="result" id="search-results"></div>
+</div>
+
+<!-- Notification popover -->
+<div class="pop" id="pop-notif">
+  <div class="pt">Notifications</div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- ===== Add/Edit Homework Modal ===== -->
+<div class="mask" id="modal">
+  <div class="sheet">
+    <h3 id="modal-title">Add Homework</h3>
+    <div class="sub" id="modal-sub">Quick entry</div>
+    <div class="field"><label>Title *</label><input class="input" id="f-title" placeholder="e.g. Math Workbook P.45-46"></div>
+    <div class="field"><label>Subject *</label><select class="input" id="f-subject"></select></div>
+    <div class="field"><label>Type</label><div class="seg" id="f-type"><div class="opt active">Daily Practice</div><div class="opt">Essay / Paper</div><div class="opt">Lab Report</div><div class="opt">Reading</div><div class="opt">Test Prep</div></div></div>
+    <div class="row2">
+      <div class="field"><label>Due Date *</label><input class="input" type="date" id="f-dueDate"></div>
+      <div class="field"><label>Due Time</label><input class="input" type="time" id="f-dueTime" value="23:59"></div>
+    </div>
+    <div class="field" id="due-schedule-preview">
+      <label>Week schedule — selected day highlighted</label>
+      <div id="due-schedule-content" class="week-mini"></div>
+    </div>
+    <div class="field"><label>Priority</label><div class="seg" id="f-priority"><div class="opt">High</div><div class="opt active">Medium</div><div class="opt">Low</div></div></div>
+    <div class="row2">
+      <div class="field"><label>Est. Time (min)</label><input class="input" type="number" id="f-estimated" value="60" min="0"></div>
+      <div class="field"><label>Source</label><div class="seg" id="f-source"><div class="opt active">In-Class</div><div class="opt">Online Platform</div><div class="opt">Verbal</div></div></div>
+    </div>
+    <div class="field"><label>Notes / Link (optional)</label><textarea class="input" id="f-notes" placeholder="Google Classroom link, teacher requirements…"></textarea></div>
+    <div class="actions">
+      <button class="btn ghost" id="modal-cancel">Cancel</button>
+      <button class="btn" id="modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Extra Class (Weekend Special) Modal ===== -->
+<div class="mask" id="extra-modal">
+  <div class="sheet">
+    <h3>Add Special Arrangement</h3>
+    <div class="sub">Weekend school day — choose which weekday's schedule to follow</div>
+    <div class="field"><label>Date *</label><input class="input" type="date" id="extra-date"></div>
+    <div class="field"><label>Follow which weekday's schedule *</label>
+      <div class="seg" id="extra-weekday">
+        <div class="opt">Monday</div><div class="opt">Tuesday</div><div class="opt">Wednesday</div><div class="opt">Thursday</div><div class="opt active">Friday</div>
+      </div>
+    </div>
+    <div class="field"><label>Note (optional)</label><input class="input" id="extra-note" placeholder="e.g. Makeup class for missed Wednesday"></div>
+    <div class="actions">
+      <button class="btn ghost" id="extra-cancel">Cancel</button>
+      <button class="btn" id="extra-save">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Club Activity Modal ===== -->
+<div class="mask" id="club-modal">
+  <div class="sheet">
+    <h3>Add Club Activity</h3>
+    <div class="sub">Extracurricular — lunch break or after school</div>
+    <div class="field"><label>Date *</label><input class="input" type="date" id="club-date"></div>
+    <div class="field"><label>Time Slot *</label>
+      <div class="seg" id="club-slot">
+        <div class="opt active">Lunch Break</div>
+        <div class="opt">After School</div>
+      </div>
+    </div>
+    <div class="field"><label>Club *</label>
+      <div class="seg" id="club-name">
+        <div class="opt">Engineering Club</div>
+        <div class="opt">Physics Club</div>
+        <div class="opt">CircuitXplorer</div>
+        <div class="opt">CS Interest Group</div>
+        <div class="opt">Photography Club</div>
+      </div>
+    </div>
+    <div class="field"><label>Note (optional)</label><input class="input" id="club-note" placeholder="e.g. Build a mini robot, room 305…"></div>
+    <div class="actions">
+      <button class="btn ghost" id="club-cancel">Cancel</button>
+      <button class="btn" id="club-save">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom nav (mobile) -->
+<div class="bottombar">
+  <div class="bb-item active" data-page="today"><span class="i">◉</span>Today</div>
+  <div class="bb-item" data-page="list"><span class="i">☰</span>Work</div>
+  <div class="bb-item" data-page="timetable"><span class="i">▤</span>Sched</div>
+  <div class="bb-item" data-page="calendar"><span class="i">▦</span>Cal</div>
+  <div class="bb-item" data-page="stats"><span class="i">◔</span>Stats</div>
+  <div class="bb-item" data-page="clubs"><span class="i">✦</span>Club</div>
+  <div class="bb-item" data-page="settings"><span class="i">⚙</span>Set</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
