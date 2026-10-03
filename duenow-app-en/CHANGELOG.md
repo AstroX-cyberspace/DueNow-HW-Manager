@@ -1,3 +1,10 @@
+# Release 2.1.1 — October 3, 2026
+
+- Larger schedule text (16–18px class names, 12–14px teacher details), plus more readable homework metadata.
+- Clear Today column shading and badge; weekend message when there is no regular weekday column.
+- Static orbital illustration for an empty Today view.
+- Preserved all homework and timetable data. Seventeen checks pass.
+
 # Release 2.1.0 — October 3, 2026
 
 - Included all ten homework entries supplied in the screenshot, retaining subjects, titles, dates, times, priorities, and 60-minute estimates.

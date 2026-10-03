@@ -1,4 +1,4 @@
-# DueNow 2.1.0
+# DueNow 2.1.1
 
 An offline homework manager. No installation, account, dependencies, or build step required.
 
@@ -38,6 +38,8 @@ Ctrl/Cmd+N adds homework (some browsers reserve it). Ctrl/Cmd+K opens global sea
 
 ## Release verification
 
-Version 2.1.0 passed sixteen regression checks covering unchanged class data, preserved storage, full and legacy backups, malformed imports, rollback, recovery, demo isolation, deadlines, homework operations/save failures, and weekend labels. JavaScript syntax checks passed. Additional checks cover exact screenshot values, duplicate prevention, reload/deletion behavior, write failures, malformed storage, and demo isolation. Browser checks confirmed ten persisted homework entries after reload and all eight timetable periods visible in a 1103 by 753 desktop viewport.
+Version 2.1.1 passed seventeen regression checks covering unchanged class data, preserved storage, full and legacy backups, malformed imports, rollback, recovery, demo isolation, deadlines, homework operations/save failures, and weekend labels. JavaScript syntax checks passed. Additional checks cover exact screenshot values, duplicate prevention, reload/deletion behavior, write failures, malformed storage, and demo isolation. Browser checks confirmed ten persisted homework entries after reload and all eight timetable periods visible in a 1103 by 753 desktop viewport.
 
 See `CHANGELOG.md` for release notes. The development repository additionally includes the original source, test fixtures, and the local preview server; these are not needed to run this ZIP.
+
+Version 2.1.1 enlarges schedule and supporting text, adds a clearly shaded Today column and weekend status, and decorates the empty Today view with a static orbital illustration.

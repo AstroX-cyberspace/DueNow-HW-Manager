@@ -16,8 +16,8 @@ function setup({demo=false,failKey=null}={}){
 }
 test('static data is byte-for-byte unchanged except for the release version',()=>{
   const current=fs.readFileSync(root+'duenow-app-en/js/data.js','utf8');
-  assert.ok(current.includes("const APP_VERSION = '2.1.0';"));
-  assert.equal(current.replace("const APP_VERSION = '2.1.0';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
+  assert.ok(current.includes("const APP_VERSION = '2.1.1';"));
+  assert.equal(current.replace("const APP_VERSION = '2.1.1';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
 });
 test('reading existing storage does not change a byte',()=>{
   const s=setup(),before=JSON.stringify([...s.map]);s.run('loadHomework(); loadSettings(); getWeekStats(); loadExtraClasses(); loadClubActivities();');assert.equal(JSON.stringify([...s.map]),before);
@@ -110,4 +110,23 @@ test('demo pack never writes real homework or its install receipt',()=>{
   const s=setup({demo:true}),before=JSON.stringify([...s.map]);
   assert.equal(s.run('installHomeworkPack().added'),10);
   assert.equal(JSON.stringify([...s.map]),before);
+});
+
+test('schedule highlights the correct weekday and all eight periods, with no false weekend column',()=>{
+  const source=fs.readFileSync(root+'duenow-app-en/js/app.js','utf8');
+  const renderer=source.slice(source.indexOf('  function renderTimetable()'),source.indexOf('  // ===== Calendar Page ====='));
+  for(const day of [-1,0,1,2,3,4]) {
+    const s=setup();
+    s.run(`const elements={'tt-body':{innerHTML:'',querySelectorAll:()=>[]},'schedule-today':{textContent:''},'tt-legend':{innerHTML:''}};
+      const headers=Array.from({length:6},()=>({innerHTML:'',active:false,attrs:{},setAttribute(k,v){this.attrs[k]=v},removeAttribute(k){delete this.attrs[k]},classList:{toggle(){}}}));
+      headers.forEach(h=>h.classList.toggle=(name,on)=>h.active=on);
+      const document={getElementById:id=>elements[id],querySelectorAll:()=>headers};
+      const escapeHtml=s=>String(s); getTodayDayIndex=()=>${day}; getExtraClassByDate=()=>null;`);
+    s.run(renderer+';renderTimetable();');
+    assert.equal(s.run('headers.filter(h=>h.active).length'),day<0?0:1);
+    if(day>=0) {
+      assert.equal(s.run(`headers[${day+1}].attrs['aria-current']`),'date');
+      assert.equal(s.run(`(elements['tt-body'].innerHTML.match(/today-col|today-free/g)||[]).length`),8);
+    } else assert.match(s.run(`elements['schedule-today'].textContent`),/No regular classes today/);
+  }
 });
