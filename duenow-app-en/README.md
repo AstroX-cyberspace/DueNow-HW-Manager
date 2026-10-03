@@ -1,4 +1,4 @@
-# DueNow 2.0.0
+# DueNow 2.1.0
 
 An offline homework manager. No installation, account, dependencies, or build step required.
 
@@ -12,14 +12,14 @@ Keep the `css` and `js` folders beside `index.html`. All assets are local, so th
 
 ## Keep your existing homework
 
-Homework is stored in your browser profile and address, not inside this archive. There is no automatic data migration, renaming, or deadline adjustment.
+Your ongoing homework records are stored in your browser profile and address. This personalized archive also includes the ten assignments from your October 3 screenshot in `js/homework-pack.js`. On first opening, they are appended to the real workspace without replacing existing records. Matching subject/title/deadline entries are skipped. A receipt prevents re-adding them on later openings, including after you edit or delete them. Screenshot dates use 2026; the 04:00 Biology deadline is retained. Type, source, and notes were not shown and are left blank.
 
 - If updating at the same address in the same browser/profile, the app continues to use the four original storage keys.
 - Before moving to a new folder, browser, or web address, open the old app and export a JSON backup from Settings.
 - Open this release at the new location and import that backup through Settings. Verify your homework before removing the old copy.
 - Keep the old app and exported backup until the transfer is complete. A different browser or localhost address cannot automatically access the old browser storage.
 
-The release contains no personal saved homework. Import/export includes homework, settings, special class arrangements, and club activities. Legacy backups retain existing collections that are absent from the imported file. Restore previous data recovers the last import/clear snapshot.
+The release contains the ten explicitly supplied homework entries, but no other browser-stored records. Import/export includes homework, settings, special class arrangements, and club activities. Legacy backups retain existing collections that are absent from the imported file. Restore previous data recovers the last import/clear snapshot.
 
 ## Design and features
 
@@ -28,9 +28,9 @@ The release contains no personal saved homework. Import/export includes homework
 - Homework creation, editing, deletion, completion, five filters, and sorting by deadline, priority, or duration.
 - Weekly timetable with class shortcuts, month calendar, clubs, statistics, reminders, and special arrangements.
 - All original class names, teachers, rooms, periods, timetable entries, clubs, slots, and holidays retained. Only the version label in `js/data.js` changed from the original 1.3.5 file.
-- Focus timer and decorative dashboard modules removed.
+- Focus timer and decorative dashboard modules removed. Compact headings, task rows, and timetable periods reduce scrolling; Homework uses two columns on wide screens.
 
-Reminders work while the page is open; they are not background operating-system notifications. Empty real workspaces are never populated with demo homework.
+Reminders work while the page is open; they are not background operating-system notifications. The real workspace receives only the requested screenshot assignments, never generic demo homework. The demo uses a separate session namespace.
 
 ## Shortcuts
 
@@ -38,6 +38,6 @@ Ctrl/Cmd+N adds homework (some browsers reserve it). Ctrl/Cmd+K opens global sea
 
 ## Release verification
 
-Version 2.0.0 passed eleven regression checks covering unchanged class data, preserved storage, full and legacy backups, malformed imports, rollback, recovery, demo isolation, deadlines, homework operations/save failures, and weekend labels. JavaScript syntax checks passed. Release browser checks covered the Homework page without search, filtering and sorting.
+Version 2.1.0 passed sixteen regression checks covering unchanged class data, preserved storage, full and legacy backups, malformed imports, rollback, recovery, demo isolation, deadlines, homework operations/save failures, and weekend labels. JavaScript syntax checks passed. Additional checks cover exact screenshot values, duplicate prevention, reload/deletion behavior, write failures, malformed storage, and demo isolation. Browser checks confirmed ten persisted homework entries after reload and all eight timetable periods visible in a 1103 by 753 desktop viewport.
 
 See `CHANGELOG.md` for release notes. The development repository additionally includes the original source, test fixtures, and the local preview server; these are not needed to run this ZIP.

@@ -1,3 +1,11 @@
+# Release 2.1.0 — October 3, 2026
+
+- Included all ten homework entries supplied in the screenshot, retaining subjects, titles, dates, times, priorities, and 60-minute estimates.
+- Added one-time append-only installation with duplicate prevention; existing records and subsequent edits/deletions are preserved.
+- Reduced heading space, task padding, and timetable row height. All eight periods fit in the tested desktop viewport.
+- Added two-column subject groups on wide screens.
+- Sixteen regression checks passed, including installation safety and exact assignment transcription.
+
 # Release 2.0.0 — October 3, 2026
 
 - Minimal dark layout with an off-white masthead, large lightweight headings, fine dividers, and original subject colors.

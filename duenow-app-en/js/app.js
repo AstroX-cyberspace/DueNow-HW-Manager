@@ -1128,14 +1128,8 @@
   // ===== Init =====
   function init() {
     bindEvents();
-    if (IS_DEMO && DUENOW_STORE.getItem(STORAGE_KEY) === null) {
-      const today = formatDate(new Date());
-      const tomorrowDate = new Date(); tomorrowDate.setDate(tomorrowDate.getDate()+1);
-      const tomorrow = formatDate(tomorrowDate);
-      addHomework({ title:'Math Workbook P.45-46', subject:'math', type:'Daily Practice', dueDate:today, dueTime:'23:59', priority:'High', estimatedMinutes:60, source:'In-Class' });
-      addHomework({ title:'English Essay Draft', subject:'english', type:'Essay / Paper', dueDate:today, dueTime:'23:59', priority:'Medium', estimatedMinutes:90, source:'In-Class' });
-      addHomework({ title:'SAT Long Sentences 50 Qs', subject:'sat', type:'Test Prep', dueDate:tomorrow, dueTime:'23:59', priority:'Medium', estimatedMinutes:45, source:'In-Class' });
-    }
+    const packResult = installHomeworkPack();
+    if (!packResult.ok) toast('Could not add the requested homework. Existing data was kept; reload to retry.');
     renderNotifications();
     navigate('today');
   }

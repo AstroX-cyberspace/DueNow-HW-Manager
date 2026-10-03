@@ -11,13 +11,13 @@ function setup({demo=false,failKey=null}={}){
   let fail=false;
   const store={getItem:k=>map.get(k)??null,setItem:(k,v)=>{if(fail&&k===failKey){fail=false;throw new Error('Quota exceeded');}map.set(k,String(v));},removeItem:k=>map.delete(k)};
   const context=vm.createContext({console:{error(){}},URLSearchParams,Date,location:{search:demo?'?demo=1':''},localStorage:store,sessionStorage:{getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,String(v)),removeItem:k=>session.delete(k)}});
-  for(const file of ['data.js','session.js','storage.js'])vm.runInContext(fs.readFileSync(root+'duenow-app-en/js/'+file,'utf8'),context);
+  for(const file of ['data.js','session.js','storage.js','homework-pack.js'])vm.runInContext(fs.readFileSync(root+'duenow-app-en/js/'+file,'utf8'),context);
   return {map,session,run:code=>vm.runInContext(code,context),fail:()=>fail=true};
 }
 test('static data is byte-for-byte unchanged except for the release version',()=>{
   const current=fs.readFileSync(root+'duenow-app-en/js/data.js','utf8');
-  assert.ok(current.includes("const APP_VERSION = '2.0.0';"));
-  assert.equal(current.replace("const APP_VERSION = '2.0.0';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
+  assert.ok(current.includes("const APP_VERSION = '2.1.0';"));
+  assert.equal(current.replace("const APP_VERSION = '2.1.0';","const APP_VERSION = '1.3.5';"),fs.readFileSync(root+'original-v1.3.5/js/data.js','utf8'));
 });
 test('reading existing storage does not change a byte',()=>{
   const s=setup(),before=JSON.stringify([...s.map]);s.run('loadHomework(); loadSettings(); getWeekStats(); loadExtraClasses(); loadClubActivities();');assert.equal(JSON.stringify([...s.map]),before);
@@ -58,4 +58,56 @@ test('homework CRUD changes only the selected item and reports failed writes',()
 });
 test('weekend calendar names and undated items render correctly',()=>{
   const s=setup();assert.equal(s.run(`getDayOfWeek('2026-10-03')`),'Sat');assert.equal(s.run(`getDayOfWeek('2026-10-04')`),'Sun');assert.equal(s.run(`getDueLabel({completed:false}).text`),'No deadline');
+});
+
+test('screenshot pack adds ten exact assignments and preserves existing records and other collections',()=>{
+  const s=setup(),other=keys.slice(1).map(k=>s.map.get(k));
+  assert.equal(s.run('installHomeworkPack().added'),10);
+  const rows=JSON.parse(s.run('JSON.stringify(loadHomework())'));
+  assert.deepEqual(rows[0],fixture.homework[0]);
+  assert.deepEqual(rows.slice(1).map(h=>[h.subject,h.title,h.dueDate,h.dueTime,h.priority,h.estimatedMinutes]),[
+    ['english','Quiz','2026-10-09','23:59','High',60],
+    ['chinese','Cooking','2026-10-03','23:59','High',60],
+    ['biology','Mini ecosystem','2026-10-07','23:59','High',60],
+    ['biology','样方测试','2026-10-08','04:00','High',60],
+    ['biology','C13.5 - 13.6','2026-10-09','23:59','High',60],
+    ['biology','Presentation','2026-11-10','23:59','Medium',60],
+    ['physics','Quiz Unit 1( velocity, accelaration, free fall)','2026-10-07','23:59','High',60],
+    ['physics','Preparation for 抛体运动','2026-10-07','23:59','High',60],
+    ['geography','Geography question','2026-12-02','23:59','Medium',60],
+    ['hic','Presentation','2026-10-08','23:59','Medium',60]
+  ]);
+  assert.deepEqual(keys.slice(1).map(k=>s.map.get(k)),other);
+  assert.equal(s.run('importData(exportData())'),true);
+});
+
+test('pack avoids matching duplicates and never re-adds deleted assignments after installation',()=>{
+  const s=setup();
+  s.run(`saveHomework([...loadHomework(),{...HOMEWORK_PACK[0],id:'already-there',completed:true,notes:'Keep my note'}])`);
+  assert.equal(s.run('installHomeworkPack().added'),9);
+  assert.equal(s.run(`loadHomework().find(h=>h.id==='already-there').notes`),'Keep my note');
+  s.run(`deleteHomework('screenshot_20261003_2'); updateHomework('screenshot_20261003_3',{dueTime:'12:00'});`);
+  const before=s.map.get(keys[0]);assert.equal(s.run('installHomeworkPack().added'),0);
+  assert.equal(s.map.get(keys[0]),before);
+});
+
+test('pack refuses malformed storage and retries a failed save without losing data',()=>{
+  const s=setup({failKey:keys[0]}),before=s.map.get(keys[0]);s.fail();
+  assert.equal(s.run('installHomeworkPack().ok'),false);assert.equal(s.map.get(keys[0]),before);
+  assert.equal(s.run('installHomeworkPack().added'),10);
+  const bad=setup();bad.map.set(keys[0],'broken');
+  assert.equal(bad.run('installHomeworkPack().ok'),false);assert.equal(bad.map.get(keys[0]),'broken');
+});
+
+test('pack receipt write failure retries safely without duplicate additions',()=>{
+  const s=setup({failKey:'duenow_homework_pack_20261003_v1'});s.fail();
+  assert.equal(s.run('installHomeworkPack().ok'),false);
+  assert.equal(s.run('installHomeworkPack().ok'),true);
+  assert.equal(s.run('loadHomework().length'),11);
+});
+
+test('demo pack never writes real homework or its install receipt',()=>{
+  const s=setup({demo:true}),before=JSON.stringify([...s.map]);
+  assert.equal(s.run('installHomeworkPack().added'),10);
+  assert.equal(JSON.stringify([...s.map]),before);
 });
