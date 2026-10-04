@@ -58,3 +58,25 @@
 /* Keep the artwork independent of homework state. */
 .today-decoration{display:flex;align-items:center;justify-content:center;min-height:190px;margin-top:18px;background:radial-gradient(ellipse at center,#17233390,transparent 70%);pointer-events:none}.today-orbit{display:block;width:280px;max-width:90%;height:187px;color:#a3bfe9}.clear-day{min-height:130px;padding:20px;background:none;justify-content:flex-start}
 @media(max-width:760px){.today-decoration{min-height:160px;margin-top:10px}.today-orbit{width:240px;height:160px}.clear-day{min-height:115px}}
+
+/* Schedule: soft subject pigments cover the whole cell, including wrapped rows. */
+#page-timetable .tt-wrap{border-radius:10px;overflow:hidden;overflow-x:auto;border-color:#38383f}
+#page-timetable .tt-grid th,#page-timetable .tt-grid th.today{font-weight:400}
+#page-timetable .tt-grid .tcol{font-weight:400;font-variant-numeric:tabular-nums;background:#141419;color:#bcb9c2}
+#page-timetable .tt-grid .tt-subject-cell{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--subject-color) 28%,#141419),color-mix(in srgb,var(--subject-color) 17%,#141419));
+  border-color:#ffffff12;
+}
+#page-timetable .tt-grid .tt-subject-cell:hover{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--subject-color) 36%,#141419),color-mix(in srgb,var(--subject-color) 23%,#141419));
+}
+#page-timetable .tt-cell,#page-timetable .tt-cell:hover,#page-timetable .tt-cell.today-col,#page-timetable .tt-cell.today-col:hover{
+  background:transparent;border-left:0;box-shadow:none;padding:9px 12px;
+}
+#page-timetable .tt-cell .cn{font-weight:400;letter-spacing:.1px;color:#f0eee9}
+#page-timetable .tt-cell .cr{font-weight:400;color:#d3cfd5;line-height:1.45}
+#page-timetable .tt-grid .tt-free-cell{background:linear-gradient(135deg,#20232b,#17191f)}
+#page-timetable .free-cell,#page-timetable .free-cell.today-free{background:transparent;box-shadow:none}
+#page-timetable .free-cell span{border:0;font-style:normal;font-weight:300;color:#b6b5c0;letter-spacing:.5px}
+#page-timetable .tt-grid .today-slot{box-shadow:inset 1px 0 #a7c9ff88,inset -1px 0 #a7c9ff88}
+#page-timetable .legend .lg{background:transparent;border-color:#ffffff16;border-radius:4px;font-weight:400}

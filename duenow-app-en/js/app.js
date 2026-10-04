@@ -326,10 +326,10 @@
         const subjKey = TIMETABLE[d][p];
         const isToday = d === todayIdx;
         if (!subjKey) {
-          html += `<td><div class="free-cell ${isToday ? 'today-free' : ''}"><span>Free</span></div></td>`;
+          html += `<td class="tt-free-cell ${isToday ? 'today-slot' : ''}"><div class="free-cell ${isToday ? 'today-free' : ''}"><span>Free</span></div></td>`;
         } else {
           const s = SUBJECTS[subjKey];
-          html += `<td><span class="tt-cell ${isToday ? 'today-col' : ''}" data-subject="${subjKey}" style="border-left-color:${s.color};">
+          html += `<td class="tt-subject-cell ${isToday ? 'today-slot' : ''}" style="--subject-color:${s.color}"><span class="tt-cell ${isToday ? 'today-col' : ''}" data-subject="${subjKey}">
             <span class="cn">${escapeHtml(s.name)}</span>
             <span class="cr">${s.teacher ? s.teacher + ' · ' : ''}${s.room || ''}</span>
           </span></td>`;
